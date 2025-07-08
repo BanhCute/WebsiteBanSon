@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique // Tên thương hiệu
+  products Product[]
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  colors      Json        @db.Json // Lưu mảng màu dưới dạng JSON
+  categoryId  Int
+  category    Category    @relation(fields: [categoryId], references: [id])
+  inventory   Inventory[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+}
+
+model Inventory {
+  id        Int     @id @default(autoincrement())
+  productId Int     @unique
+  product   Product @relation(fields: [productId], references: [id])
+  stock     Int     @default(0) // Tồn kho
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String? // Nếu dùng mật khẩu, hoặc bỏ nếu dùng OAuth
+  orders    Order[]
+  cart      Cart?
+  createdAt DateTime @default(now())
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  updatedAt DateTime   @default(now()) @updatedAt
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  items       OrderItem[]
+  total       Float
+  status      String      @default("pending")
+  shippingFee Float       @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  shipping    Shipping?   @relation("OrderShipping") // Quan hệ ngược
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+  price     Float
+}
+
+model Promotion {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  discount  Float    @default(0) // Phần trăm hoặc giá trị giảm
+  expiresAt DateTime
+  active    Boolean  @default(true)
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  metaTags  Json?    @db.Json // Lưu meta tags dưới dạng JSON
+  createdAt DateTime @default(now())
+}
+
+model Shipping {
+  id       Int     @id @default(autoincrement())
+  orderId  Int     @unique
+  order    Order   @relation("OrderShipping", fields: [orderId], references: [id])
+  fee      Float   @default(0)
+  provider String?
+}
