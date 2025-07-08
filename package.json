@@ -17,6 +17,7 @@
 		"zod": "^3.25.76"
 	},
 	"devDependencies": {
+		"@tailwindcss/postcss": "^4.1.11",
 		"@types/jest": "^30.0.0",
 		"cypress": "^14.5.1",
 		"jest": "^30.0.4",
