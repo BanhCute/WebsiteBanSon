@@ -28,6 +28,7 @@ model Product {
   inventory   Inventory[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
+  isDeleted   Boolean     @default(false) // Hỗ trợ soft delete
 }
 
 model Inventory {
@@ -74,7 +75,9 @@ model Order {
   shippingFee Float       @default(0)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  shipping    Shipping?   @relation("OrderShipping") // Quan hệ ngược
+  updatedBy   Int?        // ID của người dùng hoặc admin cập nhật đơn hàng
+  shipping    Shipping?   @relation("OrderShipping")
+  isDeleted   Boolean     @default(false) // Hỗ trợ soft delete
 }
 
 model OrderItem {
@@ -93,6 +96,7 @@ model Promotion {
   discount  Float    @default(0) // Phần trăm hoặc giá trị giảm
   expiresAt DateTime
   active    Boolean  @default(true)
+  isDeleted Boolean  @default(false) // Hỗ trợ soft delete
 }
 
 model Post {
@@ -104,9 +108,16 @@ model Post {
 }
 
 model Shipping {
-  id       Int     @id @default(autoincrement())
-  orderId  Int     @unique
-  order    Order   @relation("OrderShipping", fields: [orderId], references: [id])
-  fee      Float   @default(0)
-  provider String?
+  id            Int            @id @default(autoincrement())
+  orderId       Int            @unique
+  order         Order          @relation("OrderShipping", fields: [orderId], references: [id])
+  fee           Float          @default(0)
+  providerId    Int?           // ID của nhà cung cấp vận chuyển
+  provider      ShippingProvider? @relation(fields: [providerId], references: [id])
+}
+
+model ShippingProvider {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique // Tên nhà cung cấp (ví dụ: Giao Hàng Nhanh, Viettel Post)
+  shippings Shipping[]  // Danh sách các lô hàng liên quan
 }
