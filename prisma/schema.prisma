@@ -43,6 +43,7 @@ model User {
   email     String   @unique
   name      String?
   password  String? // Nếu dùng mật khẩu, hoặc bỏ nếu dùng OAuth
+  role      String   @default("user") // <--- Thêm dòng này
   orders    Order[]
   cart      Cart?
   createdAt DateTime @default(now())

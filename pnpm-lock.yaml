@@ -20,9 +20,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.81.5
         version: 5.81.5(react@19.1.0)
-      autoprefixer:
-        specifier: ^10.4.21
-        version: 10.4.21(postcss@8.5.6)
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.2
@@ -32,9 +29,6 @@ importers:
       next-auth:
         specifier: ^4.24.11
         version: 4.24.11(next@15.3.5(@babel/core@7.28.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      postcss:
-        specifier: ^8.5.6
-        version: 8.5.6
       react-dnd:
         specifier: ^16.0.1
         version: 16.0.1(@types/node@24.0.10)(@types/react@19.1.8)(react@19.1.0)
@@ -50,9 +44,6 @@ importers:
       shadcn-ui:
         specifier: ^0.9.5
         version: 0.9.5
-      tailwindcss:
-        specifier: ^4.1.11
-        version: 4.1.11
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -72,6 +63,9 @@ importers:
       '@types/react':
         specifier: ^19.1.8
         version: 19.1.8
+      autoprefixer:
+        specifier: ^10.4.21
+        version: 10.4.21(postcss@8.5.6)
       cypress:
         specifier: ^14.5.1
         version: 14.5.1
@@ -81,9 +75,15 @@ importers:
       jest:
         specifier: ^30.0.4
         version: 30.0.4(@types/node@24.0.10)
+      postcss:
+        specifier: ^8.5.6
+        version: 8.5.6
       prisma:
         specifier: ^6.11.1
         version: 6.11.1(typescript@5.8.3)
+      tailwindcss:
+        specifier: ^4.1.11
+        version: 4.1.11
       ts-jest:
         specifier: ^29.4.0
         version: 29.4.0(@babel/core@7.28.0)(@jest/transform@30.0.4)(@jest/types@30.0.1)(babel-jest@30.0.4(@babel/core@7.28.0))(jest-util@30.0.2)(jest@30.0.4(@types/node@24.0.10))(typescript@5.8.3)
