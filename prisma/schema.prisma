@@ -3,7 +3,8 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  // Bỏ dòng output để dùng đường dẫn mặc định
+  // output   = "../generated/prisma"
 }
 
 datasource db {
