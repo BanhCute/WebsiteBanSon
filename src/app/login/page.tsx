@@ -2,31 +2,33 @@
 
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+
 // 1. Định nghĩa kiểu dữ liệu cho form
 type LoginForm = {
   email: string;
   password: string;
 };
 
-export default function LoginPage() {
-  // 2. Khởi tạo form với React Hook Form
+// Component con để xử lý search params
+function LoginForm() {
   const { register, handleSubmit } = useForm<LoginForm>();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Loading khi submit
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  //Hien thi thong bao
+  // Hiển thị thông báo từ URL params
   useEffect(() => {
     const messageParam = searchParams.get("message");
     if (messageParam) {
       setMessage(messageParam);
     }
   }, [searchParams]);
+
   // 3. Hàm xử lý khi submit form
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
@@ -44,12 +46,9 @@ export default function LoginPage() {
     }
   };
 
-  // 4. Giao diện
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-white">
-      {/* Logo hoặc tên website */}
       <div className="mb-8 flex flex-col items-center">
-        {/* Thay bằng logo thật nếu có */}
         <div className="text-3xl font-bold text-blue-700 mb-2">
           Website Bán Sơn
         </div>
@@ -57,17 +56,11 @@ export default function LoginPage() {
           Đăng nhập tài khoản để mua sơn chất lượng!
         </div>
       </div>
-      {/* Form đăng nhập */}
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white shadow-lg rounded-lg p-8 w-full max-w-sm flex flex-col gap-4 border border-blue-200"
       >
-        {message && (
-          <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded">
-            {message}
-          </div>
-        )}
-
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">
             Email
@@ -92,9 +85,17 @@ export default function LoginPage() {
             autoComplete="current-password"
           />
         </div>
+
+        {message && (
+          <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded">
+            {message}
+          </div>
+        )}
+
         {error && (
           <div className="text-red-600 text-sm text-center">{error}</div>
         )}
+
         <button
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition"
@@ -102,13 +103,14 @@ export default function LoginPage() {
         >
           {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </button>
+
         <div className="text-center text-sm text-gray-600">
           Chưa có tài khoản?{" "}
           <Link href="/register" className="text-blue-600 hover:underline">
             Đăng ký ngay
           </Link>
         </div>
-        {/* Link về trang chủ */}
+
         <button
           type="button"
           className="text-blue-500 hover:underline text-sm mt-2"
@@ -118,5 +120,20 @@ export default function LoginPage() {
         </button>
       </form>
     </div>
+  );
+}
+
+// Component chính với Suspense
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-xl">Đang tải...</div>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
