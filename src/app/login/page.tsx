@@ -2,9 +2,9 @@
 
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 // 1. Định nghĩa kiểu dữ liệu cho form
 type LoginForm = {
   email: string;
@@ -16,8 +16,17 @@ export default function LoginPage() {
   const { register, handleSubmit } = useForm<LoginForm>();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false); // Loading khi submit
+  const [message, setMessage] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
+  //Hien thi thong bao
+  useEffect(() => {
+    const messageParam = searchParams.get("message");
+    if (messageParam) {
+      setMessage(messageParam);
+    }
+  }, [searchParams]);
   // 3. Hàm xử lý khi submit form
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
@@ -31,7 +40,7 @@ export default function LoginPage() {
     if (res?.error) {
       setError("Sai email hoặc mật khẩu!");
     } else {
-      router.push("/");
+      router.push("/dashboard");
     }
   };
 
@@ -53,6 +62,12 @@ export default function LoginPage() {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white shadow-lg rounded-lg p-8 w-full max-w-sm flex flex-col gap-4 border border-blue-200"
       >
+        {message && (
+          <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded">
+            {message}
+          </div>
+        )}
+
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">
             Email
@@ -87,6 +102,12 @@ export default function LoginPage() {
         >
           {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </button>
+        <div className="text-center text-sm text-gray-600">
+          Chưa có tài khoản?{" "}
+          <Link href="/register" className="text-blue-600 hover:underline">
+            Đăng ký ngay
+          </Link>
+        </div>
         {/* Link về trang chủ */}
         <button
           type="button"
