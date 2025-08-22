@@ -16,11 +16,8 @@ const updateSchema = z.object({
 });
 
 // GET /api/products/:id
-export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
-  const id = Number(params.id);
+export async function GET(_req: Request, ctx: any) {
+  const id = Number(ctx.params.id);
   const product = await prisma.product.findFirst({
     where: { id, isDeleted: false },
     include: { category: true, inventory: true },
@@ -32,15 +29,12 @@ export async function GET(
 }
 
 // PUT /api/products/:id (admin)
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, ctx: any) {
   const { error } = await requireAdmin();
   if (error) return error;
 
   try {
-    const id = Number(params.id);
+    const id = Number(ctx.params.id);
     const json = await req.json();
     const body = updateSchema.parse({
       ...json,
@@ -58,15 +52,12 @@ export async function PUT(
 }
 
 // DELETE /api/products/:id (admin) - soft delete
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_req: NextRequest, ctx: any) {
   const { error } = await requireAdmin();
   if (error) return error;
 
   try {
-    const id = Number(params.id);
+    const id = Number(ctx.params.id);
     const deleted = await prisma.product.update({
       where: { id },
       data: { isDeleted: true },
