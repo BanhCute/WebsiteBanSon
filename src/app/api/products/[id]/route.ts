@@ -14,23 +14,28 @@ const updateSchema = z.object({
   colors: z.any().optional(),
   categoryId: z.number().int().optional(),
 });
-type Ctx = { params: { id: string } };
 
-//GET /api/products/:id
-
-export async function GET(_req: Request, { params }: Ctx) {
+// GET /api/products/:id
+export async function GET(
+  _req: Request,
+  { params }: { params: { id: string } }
+) {
   const id = Number(params.id);
   const product = await prisma.product.findFirst({
     where: { id, isDeleted: false },
     include: { category: true, inventory: true },
   });
-  if (!product)
-    return NextResponse.json({ error: " Không tìm thấy" }, { status: 404 });
+  if (!product) {
+    return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
+  }
   return NextResponse.json(product);
 }
 
-//PUT /api/products/:id (admin)
-export async function PUT(req: NextRequest, { params }: Ctx) {
+// PUT /api/products/:id (admin)
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const { error } = await requireAdmin();
   if (error) return error;
 
@@ -42,20 +47,21 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       price: json.price != null ? Number(json.price) : undefined,
       categoryId: json.categoryId != null ? Number(json.categoryId) : undefined,
     });
-    const update = await prisma.product.update({
-      where: { id },
-      data: body,
-    });
-    return NextResponse.json(update);
+    const updated = await prisma.product.update({ where: { id }, data: body });
+    return NextResponse.json(updated);
   } catch (e: any) {
     return NextResponse.json(
-      { error: e?.message || " Lỗi cập nhật" },
+      { error: e?.message || "Lỗi cập nhật" },
       { status: 400 }
     );
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
+// DELETE /api/products/:id (admin) - soft delete
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const { error } = await requireAdmin();
   if (error) return error;
 
