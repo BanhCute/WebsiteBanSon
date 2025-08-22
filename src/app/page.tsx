@@ -34,6 +34,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       {/*Header */}
+      {session?.user?.role === "admin" && (
+        <Link
+          href="/admin"
+          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+        >
+          Admin Panel
+        </Link>
+      )}
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center ">
           <div className="text-2xl font-bold text-blue-600">

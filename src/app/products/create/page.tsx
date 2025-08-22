@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; // Thay đổi từ next/router sang next/navigation
 
 type ProductForm = {
@@ -11,19 +11,49 @@ type ProductForm = {
   categoryId: number; // Sửa từ categoryID thành categoryId để khớp với schema
 };
 
+type Category = {
+  id: number;
+  name: string;
+};
+
 export default function CreateProductPage() {
   const { register, handleSubmit } = useForm<ProductForm>();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const router = useRouter();
-
+  //lay categories tu api
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        } else {
+          setError("Không thể tải danh mục!");
+        }
+      } catch (error) {
+        setError("Lỗi kết nối server!");
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
   const onSubmit = async (data: ProductForm) => {
     setLoading(true);
+    setError("");
     try {
+      console.log("Sending data:", data);
       const response = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      const result = await response.json();
+      console.log("API response:", result);
 
       if (response.ok) {
         router.push("/products");
@@ -31,6 +61,7 @@ export default function CreateProductPage() {
         console.error("Lỗi tạo sản phẩm");
       }
     } catch (error) {
+      setError("Lỗi kết nối server!");
       console.error("Lỗi:", error);
     }
     setLoading(false);
@@ -39,6 +70,11 @@ export default function CreateProductPage() {
   return (
     <div className="container mx-auto p-4 max-w-md">
       <h1 className="text-2xl font-bold mb-4">Thêm sản phẩm mới</h1>
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
@@ -77,12 +113,17 @@ export default function CreateProductPage() {
               valueAsNumber: true,
               required: "Vui lòng chọn danh mục",
             })}
+            disabled={loadingCategories}
             className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            <option value="">Chọn danh mục</option>
-            <option value="1">Sơn nội thất</option>
-            <option value="2">Sơn ngoại thất</option>
-            <option value="3">Sơn chống thấm</option>
+            <option value="">
+              {loadingCategories ? "Đang tải..." : "Chọn danh mục"}
+            </option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
           </select>
         </div>
         <button
