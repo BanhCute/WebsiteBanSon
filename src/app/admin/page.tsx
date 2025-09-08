@@ -24,6 +24,15 @@ export default async function AdminPage() {
             Thêm sản phẩm mới
           </Link>
         </div>
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Quản lý sản phẩm</h2>
+          <Link
+            href="/admin/categories"
+            className="block bg-fuchsia-600 text-white px-4 py-2 rounded hover:bg-fuchsia-700 transition"
+          >
+            Thêm danh mục
+          </Link>
+        </div>
 
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Quản lý đơn hàng</h2>
