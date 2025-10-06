@@ -39,6 +39,10 @@ export default function ProductCard({ product, isLoggedIn }: ProductCardProps) {
       });
 
       if (response.ok) {
+        window.dispatchEvent(
+          new CustomEvent("cart:updated", { detail: { delta: quantity } })
+        );
+
         alert("Đã thêm vào giỏ hàng!");
       } else {
         const data = await response.json();
@@ -54,6 +58,11 @@ export default function ProductCard({ product, isLoggedIn }: ProductCardProps) {
   const inventory = product.inventory?.[0]; // Lấy inventory đầu tiên
   const stock = inventory?.stock || 0;
   const isOutOfStock = stock === 0;
+  const formatVND = (n: number) =>
+    Math.round(n)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
+  // dùng: {formatVND(item.price * item.quantity)}
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -68,7 +77,7 @@ export default function ProductCard({ product, isLoggedIn }: ProductCardProps) {
           {product.description || "Chưa có mô tả"}
         </p>
         <p className="text-blue-600 font-bold text-lg mb-2">
-          {product.price.toLocaleString()}đ
+          {formatVND(product.price)}
         </p>
         <p className="text-sm text-gray-500 mb-3">
           Danh mục: {product.category.name}

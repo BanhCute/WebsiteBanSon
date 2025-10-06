@@ -34,24 +34,43 @@ export default function CartPage() {
     (sum, i) => sum + i.product.price * i.quantity,
     0
   );
-
+  const setQtyLocal = (productId: number, nextQty: number) => {
+    setCart((c) => ({
+      ...c,
+      items: c.items.map((i) =>
+        i.product.id === productId ? { ...i, quantity: nextQty } : i
+      ),
+    }));
+  };
   const updateQty = async (productId: number, quantity: number) => {
     if (quantity < 1) return;
-    setMsg("");
+    setQtyLocal(productId, quantity); // cập nhật ngay
     const res = await fetch("/api/cart", {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      },
       body: JSON.stringify({ productId, quantity }),
     });
-    if (res.ok) load();
+    if (!res.ok) {
+      await load(); // rollback nếu thất bại
+      return;
+    }
+    window.dispatchEvent(new CustomEvent("cart:updated"));
   };
 
   const removeItem = async (productId: number) => {
-    setMsg("");
+    setCart((c) => ({
+      ...c,
+      items: c.items.filter((i) => i.product.id !== productId),
+    })); // cập nhật ngay
     const res = await fetch(`/api/cart?productId=${productId}`, {
       method: "DELETE",
+      headers: { "Cache-Control": "no-store" },
     });
-    if (res.ok) load();
+    if (!res.ok) await load();
+    window.dispatchEvent(new CustomEvent("cart:updated"));
   };
 
   if (loading) {
@@ -144,6 +163,7 @@ export default function CartPage() {
                 if (res.ok) {
                   setMsg("Đặt hàng thành công!");
                   await load();
+                  window.dispatchEvent(new CustomEvent("cart:updated"));
                   window.location.href = "/orders";
                 } else {
                   setMsg(data.error || "Không thể đặt hàng");

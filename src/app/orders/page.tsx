@@ -118,7 +118,7 @@ export default function OrdersPage() {
                   {order.items.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm">
                       <span>
-                        {item.product.name} x {item.quantity}
+                        {item.product?.name ?? "Sản phẩm"} x {item.quantity}
                       </span>
                       <span>
                         {(item.price * item.quantity).toLocaleString()}đ

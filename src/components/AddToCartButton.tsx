@@ -18,6 +18,8 @@ export default function AddToCartButton({ productId }: { productId: number }) {
         body: JSON.stringify({ productId, quantiny: qty }),
       });
       if (res.ok) {
+          window.dispatchEvent(new CustomEvent("cart:updated", { detail: { delta: qty } }));
+
         setMsg("Đã thêm vào giỏ hàng!");
       } else {
         const data = await res.json().catch(() => ({}));

@@ -2,15 +2,57 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export default function Navigation() {
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
+  // 1) ĐÁNH DẤU ĐÃ MOUNT (bạn bị thiếu đoạn này nên Nav biến mất)
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // 2) Lấy lại số lượng giỏ
+  const fetchCartCount = useCallback(async () => {
+    if (!session) {
+      setCartCount(0);
+      return;
+    }
+    try {
+      const res = await fetch("/api/cart", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        const count = (data?.items || []).reduce(
+          (s: number, i: any) => s + (i.quantity || 0),
+          0
+        );
+        setCartCount(count);
+      } else if (res.status === 401) {
+        setCartCount(0);
+      }
+    } catch {
+      // ignore
+    }
+  }, [session]);
+
+  // 3) Load lần đầu và khi đăng nhập/đăng xuất
+  useEffect(() => {
+    fetchCartCount();
+  }, [fetchCartCount]);
+
+  // 4) Lắng nghe sự kiện cập nhật giỏ
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.delta) setCartCount((c) => c + Number(detail.delta)); // cập nhật lạc quan
+      fetchCartCount(); // đồng bộ lại
+    };
+    window.addEventListener("cart:updated", handler as EventListener);
+    return () =>
+      window.removeEventListener("cart:updated", handler as EventListener);
+  }, [fetchCartCount]);
 
   if (!mounted) return null;
 
@@ -28,8 +70,16 @@ export default function Navigation() {
 
           {session ? (
             <>
-              <Link href="/cart" className="hover:text-blue-600 transition">
+              <Link
+                href="/cart"
+                className="relative hover:text-blue-600 transition"
+              >
                 Giỏ hàng
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full px-2 py-[2px]">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
               <Link href="/orders" className="hover:text-blue-600 transition">
                 Đơn hàng

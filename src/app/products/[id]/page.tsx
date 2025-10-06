@@ -7,11 +7,7 @@ import AddToCartButton from "@/components/AddToCartButton";
 
 const prisma = new PrismaClient();
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ProductDetailPage({ params }: any) {
   const id = Number(params.id);
   if (!id || Number.isNaN(id)) notFound();
 

@@ -71,31 +71,27 @@ export async function POST(req: NextRequest) {
 }
 
 // PATCH: cập nhật số lượng { productId, quantity }
-export async function PATCH(req: NextRequest) {
-  const { session, error } = await requireUser();
-  if (error) return error;
-
-  const { productId, quantity } = await req.json();
-  if (!productId || quantity == null || Number(quantity) < 1) {
-    return NextResponse.json(
-      { error: "Số lượng không hợp lệ" },
-      { status: 400 }
-    );
-  }
-
-  const cart = await prisma.cart.findUnique({
-    where: { userId: Number(session!.user.id) },
-  });
-  if (!cart)
-    return NextResponse.json({ error: "Chưa có giỏ" }, { status: 404 });
-
-  const updated = await prisma.cartItem.updateMany({
-    where: { cartId: cart.id, productId: Number(productId) },
-    data: { quantity: Number(quantity) },
-  });
-
-  return NextResponse.json({ updated: updated.count }, { status: 200 });
-}
+    export async function PATCH(req: NextRequest) {
+      const { session, error } = await requireUser();
+      if (error) return error;
+      const { productId, quantity } = await req.json();
+      if (!productId || quantity == null || Number(quantity) < 1) {
+        return NextResponse.json(
+          { error: "Số lượng không hợp lệ" },
+          { status: 400 }
+        );
+      }
+      const cart = await prisma.cart.findUnique({
+        where: { userId: Number(session!.user.id) },
+      });
+      if (!cart)
+        return NextResponse.json({ error: "Chưa có giỏ" }, { status: 404 });
+      await prisma.cartItem.updateMany({
+        where: { cartId: cart.id, productId: Number(productId) },
+        data: { quantity: Number(quantity) },
+      });
+      return NextResponse.json({ ok: true });
+    }
 
 // DELETE: xóa item ?productId=...
 export async function DELETE(req: NextRequest) {

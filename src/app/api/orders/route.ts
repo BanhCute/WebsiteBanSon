@@ -41,13 +41,11 @@ export async function POST() {
         })),
       },
     },
-    include: { items: true },
+    include: {
+      items: { include: { product: { select: { name: true } } } }, // thêm dòng này
+    },
   });
-
-  // clear giỏ
-  await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
-
-  return NextResponse.json(order, { status: 201 });
+  // ...
 }
 
 // GET: đơn của user
@@ -58,7 +56,9 @@ export async function GET() {
   const orders = await prisma.order.findMany({
     where: { userId: Number(session!.user.id) },
     orderBy: { createdAt: "desc" },
-    include: { items: true },
+    include: {
+      items: { include: { product: { select: { name: true } } } }, // thêm dòng này
+    },
   });
 
   return NextResponse.json(orders);
