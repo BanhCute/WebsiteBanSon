@@ -13,19 +13,16 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // Tránh hydration error
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Nếu chưa đăng nhập, chuyển về trang login
   useEffect(() => {
     if (mounted && status === "unauthenticated") {
       router.push("/login");
     }
   }, [status, router, mounted]);
 
-  // Loading khi đang kiểm tra session hoặc chưa mount
   if (status === "loading" || !mounted) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,7 +31,6 @@ export default function DashboardPage() {
     );
   }
 
-  // Nếu chưa đăng nhập
   if (!session) {
     return null;
   }
@@ -45,36 +41,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-600">
-            Website Bán Sơn
-          </div>
-          <nav className="flex gap-6 items-center">
-            <Link href="/" className="hover:text-blue-600 transition">
-              Trang chủ
-            </Link>
-            <Link href="/products" className="hover:text-blue-600 transition">
-              Sản phẩm
-            </Link>
-            <Link href="/cart" className="hover:text-blue-600 transition">
-              Giỏ hàng
-            </Link>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">
-                Xin chào, {session.user?.name}
-              </span>
-              <button
-                onClick={() => setShowLogoutModal(true)}
-                className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-              >
-                Đăng xuất
-              </button>
-            </div>
-          </nav>
-        </div>
-      </header>
+      {/* XÓA TOÀN BỘ PHẦN HEADER - CHỈ GIỮ CONTENT */}
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">

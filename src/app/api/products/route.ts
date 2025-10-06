@@ -20,47 +20,31 @@ export async function GET() {
   try {
     const products = await prisma.product.findMany({
       where: { isDeleted: false },
-      include: { category: true, inventory: true },
+      include: {
+        category: true,
+        inventory: true, // Đảm bảo có dòng này
+      },
     });
+    console.log("Products with inventory:", products); // Debug log
     return NextResponse.json(products);
   } catch (error) {
+    console.error("Error fetching products:", error);
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
   }
 }
 
 // POST: admin
 export async function POST(request: NextRequest) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   try {
-    // Check admin permission
-    const adminCheck = await requireAdmin();
-    if (adminCheck.error) {
-      console.log("Admin check failed:", adminCheck.error);
-      return adminCheck.error;
-    }
-
     const json = await request.json();
-    console.log("Received data:", json); // Debug log
-
-    // Validate data
     const body = productSchema.parse({
       ...json,
       price: Number(json.price),
       categoryId: Number(json.categoryId),
     });
-
-    console.log("Validated data:", body); // Debug log
-
-    // Check if category exists
-    const category = await prisma.category.findUnique({
-      where: { id: body.categoryId },
-    });
-
-    if (!category) {
-      return NextResponse.json(
-        { error: "Danh mục không tồn tại" },
-        { status: 400 }
-      );
-    }
 
     const product = await prisma.product.create({
       data: {
@@ -77,10 +61,8 @@ export async function POST(request: NextRequest) {
       data: { productId: product.id, stock: 0 },
     });
 
-    console.log("Product created:", product); // Debug log
     return NextResponse.json(product, { status: 201 });
   } catch (e: any) {
-    console.error("API Error:", e); // Debug log
     return NextResponse.json(
       { error: e?.message || "Lỗi tạo sản phẩm" },
       { status: 400 }
