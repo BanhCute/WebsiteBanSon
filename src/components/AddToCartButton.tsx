@@ -1,6 +1,5 @@
 "use client";
 
-import { headers } from "next/headers";
 import { useState } from "react";
 
 export default function AddToCartButton({ productId }: { productId: number }) {
@@ -18,7 +17,9 @@ export default function AddToCartButton({ productId }: { productId: number }) {
         body: JSON.stringify({ productId, quantiny: qty }),
       });
       if (res.ok) {
-          window.dispatchEvent(new CustomEvent("cart:updated", { detail: { delta: qty } }));
+        window.dispatchEvent(
+          new CustomEvent("cart:updated", { detail: { delta: qty } })
+        );
 
         setMsg("Đã thêm vào giỏ hàng!");
       } else {

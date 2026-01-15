@@ -1,8 +1,7 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  eslint: { ignoreDuringBuilds: true },
-  // typescript: { ignoreBuildErrors: true }, // chỉ bật nếu thật cần
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Các option khác của bạn (images, reactStrictMode, v.v.)
+  // KHÔNG có eslint nữa!
 };
 
 export default nextConfig;

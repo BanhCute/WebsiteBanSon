@@ -10,7 +10,7 @@
     "@prisma/client": "^6.11.1",
     "@tanstack/react-query": "^5.81.5",
     "bcryptjs": "^3.0.2",
-    "next": "15.3.8",
+    "next": "^16.1.2",
     "next-auth": "^4.24.11",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
