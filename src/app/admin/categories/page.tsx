@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 type Category = {
@@ -56,11 +57,26 @@ export default function CategoriesPage() {
     }
   };
   if (loading) {
-    return <div className="text-center py-8">Đang tải...</div>;
+    return (
+      <div className="container mx-auto p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Quản lý danh mục</h1>
+          <Link href="/admin" className="text-blue-600 hover:underline text-sm">
+            ← Quay lại Admin
+          </Link>
+        </div>
+        <div className="text-center py-8">Đang tải...</div>
+      </div>
+    );
   }
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Quản lý danh mục</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Quản lý danh mục</h1>
+        <Link href="/admin" className="text-blue-600 hover:underline text-sm">
+          ← Quay lại Admin
+        </Link>
+      </div>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">

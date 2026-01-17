@@ -16,7 +16,6 @@ const updateOrderSchema = z.object({
 
 // PUT: cập nhật đơn hàng (admin)
 export async function PUT(req: NextRequest, { params }: any) {
-  const id = Number(params.id);
   const { error } = await requireAdmin();
   if (error) return error;
 

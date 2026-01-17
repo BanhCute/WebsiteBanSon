@@ -1,14 +1,14 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Thay đổi từ next/router sang next/navigation
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 type ProductForm = {
   name: string;
   description: string;
   price: number;
-  categoryId: number; // Sửa từ categoryID thành categoryId để khớp với schema
+  categoryId: number;
   colors: string;
 };
 
@@ -17,38 +17,85 @@ type Category = {
   name: string;
 };
 
-export default function CreateProductPage() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ProductForm>();
-  const [loading, setLoading] = useState(false);
+type ProductResponse = {
+  id: number;
+  name: string;
+  description: string | null;
+  price: number;
+  categoryId: number;
+  colors: any;
+};
+
+export default function EditProductPage({ params }: { params: { id: string } }) {
+  const id = Number(params.id);
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const router = useRouter();
-  //lay categories tu api
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ProductForm>();
+
   useEffect(() => {
-    const fetchCategories = async () => {
+    if (!id || Number.isNaN(id)) {
+      setError("ID sản phẩm không hợp lệ");
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
       try {
-        const response = await fetch("/api/categories");
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data);
+        const [productRes, categoryRes] = await Promise.all([
+          fetch(`/api/products/${id}`),
+          fetch("/api/categories"),
+        ]);
+
+        const productData = await productRes.json();
+        const categoryData = await categoryRes.json();
+
+        if (!productRes.ok) {
+          setError(productData.error || "Không thể tải thông tin sản phẩm");
         } else {
-          setError("Không thể tải danh mục!");
+          const product = productData as ProductResponse;
+          const colorsValue = Array.isArray(product.colors)
+            ? product.colors.join(", ")
+            : "";
+          reset({
+            name: product.name,
+            description: product.description || "",
+            price: product.price,
+            categoryId: product.categoryId,
+            colors: colorsValue,
+          });
         }
-      } catch (error) {
-        setError("Lỗi kết nối server!");
+
+        if (categoryRes.ok) {
+          setCategories(categoryData);
+        } else {
+          setError(
+            (prev) =>
+              prev || categoryData.error || "Không thể tải danh sách danh mục"
+          );
+        }
+      } catch {
+        setError("Lỗi kết nối server");
       } finally {
+        setLoading(false);
         setLoadingCategories(false);
       }
     };
-    fetchCategories();
-  }, []);
+
+    fetchData();
+  }, [id, reset]);
+
   const onSubmit = async (data: ProductForm) => {
-    setLoading(true);
+    setSaving(true);
     setError("");
     try {
       const colorsArray = data.colors
@@ -57,43 +104,51 @@ export default function CreateProductPage() {
             .map((c) => c.trim())
             .filter(Boolean)
         : [];
+
       const payload = {
         ...data,
         price: Number(data.price),
         categoryId: Number(data.categoryId),
         colors: colorsArray,
       };
-      const response = await fetch("/api/products", {
-        method: "POST",
+
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const result = await response.json();
+      const result = await res.json();
 
-      if (response.ok) {
-        router.push("/products");
+      if (res.ok) {
+        router.push("/admin/products");
       } else {
-        setError(result?.error || "Lỗi tạo sản phẩm");
+        setError(result.error || "Không thể cập nhật sản phẩm");
       }
-    } catch (error) {
-      setError("Lỗi kết nối server!");
+    } catch {
+      setError("Lỗi kết nối server");
+    } finally {
+      setSaving(false);
     }
-    setLoading(false);
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="text-center py-8">Đang tải...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4 max-w-md">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Thêm sản phẩm mới</h1>
-        <a href="/admin" className="text-blue-600 hover:underline text-sm">
-          ← Quay lại Admin
-        </a>
-      </div>
+      <h1 className="text-2xl font-bold mb-4">Chỉnh sửa sản phẩm</h1>
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
@@ -103,9 +158,12 @@ export default function CreateProductPage() {
             placeholder="Nhập tên sản phẩm"
           />
           {errors.name && (
-            <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>
+            <p className="text-red-600 text-sm mt-1">
+              {errors.name.message}
+            </p>
           )}
         </div>
+
         <div>
           <label className="block text-sm font-medium mb-1">Mô tả</label>
           <textarea
@@ -115,6 +173,7 @@ export default function CreateProductPage() {
             placeholder="Nhập mô tả sản phẩm"
           />
         </div>
+
         <div>
           <label className="block text-sm font-medium mb-1">Giá</label>
           <input
@@ -128,9 +187,12 @@ export default function CreateProductPage() {
             min="0"
           />
           {errors.price && (
-            <p className="text-red-600 text-sm mt-1">{errors.price.message}</p>
+            <p className="text-red-600 text-sm mt-1">
+              {errors.price.message}
+            </p>
           )}
         </div>
+
         <div>
           <label className="block text-sm font-medium mb-1">Danh mục</label>
           <select
@@ -156,6 +218,7 @@ export default function CreateProductPage() {
             </p>
           )}
         </div>
+
         <div>
           <label className="block text-sm font-medium mb-1">Màu sắc</label>
           <input
@@ -164,14 +227,16 @@ export default function CreateProductPage() {
             placeholder="Ví dụ: đỏ, xanh, vàng"
           />
         </div>
+
         <button
           type="submit"
-          disabled={loading}
+          disabled={saving}
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 transition"
         >
-          {loading ? "Đang tạo..." : "Tạo sản phẩm"}
+          {saving ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
       </form>
     </div>
   );
 }
+

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type OrderItem = {
   id: number;
@@ -56,12 +57,27 @@ export default function AdminOrdersPage() {
   };
 
   if (loading) {
-    return <div className="container mx-auto p-4">Đang tải...</div>;
+    return (
+      <div className="container mx-auto p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Quản lý đơn hàng</h1>
+          <Link href="/admin" className="text-blue-600 hover:underline text-sm">
+            ← Quay lại Admin
+          </Link>
+        </div>
+        <div>Đang tải...</div>
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Quản lý đơn hàng</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Quản lý đơn hàng</h1>
+        <Link href="/admin" className="text-blue-600 hover:underline text-sm">
+          ← Quay lại Admin
+        </Link>
+      </div>
 
       <div className="space-y-4">
         {orders.map((order) => (

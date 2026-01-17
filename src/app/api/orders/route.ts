@@ -42,10 +42,16 @@ export async function POST() {
       },
     },
     include: {
-      items: { include: { product: { select: { name: true } } } }, // thêm dòng này
+      items: { include: { product: { select: { name: true } } } },
     },
   });
-  // ...
+
+  // Xóa cart sau khi tạo order thành công
+  await prisma.cartItem.deleteMany({
+    where: { cartId: cart.id },
+  });
+
+  return NextResponse.json(order, { status: 201 });
 }
 
 // GET: đơn của user

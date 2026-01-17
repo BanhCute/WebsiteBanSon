@@ -18,19 +18,35 @@ export default async function AdminPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Quản lý sản phẩm</h2>
           <Link
+            href="/admin/products"
+            className="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition mb-2 text-center"
+          >
+            Danh sách sản phẩm
+          </Link>
+          <Link
             href="/products/create"
-            className="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            className="block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-center"
           >
             Thêm sản phẩm mới
           </Link>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Quản lý sản phẩm</h2>
+          <h2 className="text-xl font-semibold mb-4">Quản lý danh mục</h2>
           <Link
             href="/admin/categories"
             className="block bg-fuchsia-600 text-white px-4 py-2 rounded hover:bg-fuchsia-700 transition"
           >
             Thêm danh mục
+          </Link>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Quản lý tồn kho</h2>
+          <Link
+            href="/admin/inventory"
+            className="block bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition"
+          >
+            Quản lý tồn kho
           </Link>
         </div>
 

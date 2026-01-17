@@ -14,7 +14,7 @@ export default function AddToCartButton({ productId }: { productId: number }) {
       const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantiny: qty }),
+        body: JSON.stringify({ productId, quantity: qty }),
       });
       if (res.ok) {
         window.dispatchEvent(
